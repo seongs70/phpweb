@@ -6,7 +6,7 @@ h1 {font-weight: normal; padding: 1.5em; color: white; text-shadow: 1px 1px 0px 
 nav {background-color: #443A5C;}
 
 nav a {color: white; text-decoration: none;}
-nav a:hover {color: #ddd;}
+nav a:hover {color: #ddd; } 
 nav ul {display: table; width: 1000px; margin: auto;}
 nav li {display: table-cell; text-align: center; padding: 1em;}
 
