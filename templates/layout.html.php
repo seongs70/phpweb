@@ -13,7 +13,7 @@
     <ul>
       <li><a href="index.php">Home</a></li>
       <li><a href="jokes.php">유머 글 목록</a></li>
-      <li><a href="addjoke.php">유머 글 등록</a></li>
+      <li><a href="editjoke.php">유머 글 등록</a></li>
     </ul>
   </nav>
 

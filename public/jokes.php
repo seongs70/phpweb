@@ -4,12 +4,27 @@ try {
   include __DIR__ . '/../includes/DatabaseConnection.php';
   include __DIR__ . '/../includes/DatabaseFunctions.php';
 
-  $jokes = allJokes($pdo);
+  $result = findAll($pdo, 'joke');//모든 글 검색
+
+  $jokes = [];
+  foreach ($result as $joke) {
+      //print_r($joke);
+
+      $author = findById($pdo, 'author', 'id', $joke['authorId']); // author 테이블 id로 검색한 열 출력
+      //print_r($author);
+      $jokes[] = [
+          'id' => $joke['id'],
+          'joketext' => $joke['joketext'],
+          'jokedate' => $joke['jokedate'],
+          'name' => $author['name'],
+          'email' => $author['email']
+      ];
+  }
 
 
   $title = '유머 글 목록';
 
-  $totalJokes = totalJokes($pdo);
+  $totalJokes = total($pdo, 'joke');
 
   ob_start();
 

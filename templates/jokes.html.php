@@ -9,14 +9,14 @@
     (작성자: <a href="mailto:<?=htmlspecialchars($joke['email'], ENT_QUOTES,
                     'UTF-8'); ?>">
                 <?=htmlspecialchars($joke['name'], ENT_QUOTES,
-                    'UTF-8'); ?></a> 작성일:  
+                    'UTF-8'); ?></a> 작성일:
 <?php
+    // print_r($jokes);
                 $date = new DateTime($joke['jokedate']);
 
                 echo $date->format('jS F Y');
 ?>)
-    
-  <a href="editjoke.php?id=<?=$joke['id']?>">수정</a>
+
   <a href="editjoke.php?id=<?=$joke['id']?>">수정</a>
   <form action="deletejoke.php" method="post">
     <input type="hidden" name="id" value="<?=$joke['id']?>">
