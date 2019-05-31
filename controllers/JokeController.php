@@ -49,7 +49,7 @@ class JokeController {
     public function delete(){
         $this->jokesTable->delete($_POST['id']);
 
-    	header('location: index.php?action=list');
+    	header('location: index.php?route=joke/list');
     }
     public function edit(){
         if (isset($_POST['joke'])) {
@@ -58,7 +58,7 @@ class JokeController {
             $joke['jokedate'] = new DateTime();
             // return print_r($joke);
             $this->jokesTable->save($joke);
-            header('location: index.php?action=list');
+            header('location: index.php?route=joke/list');
         } else {
             //수정폼
             if(isset($_GET['id'])){
