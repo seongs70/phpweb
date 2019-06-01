@@ -1,4 +1,5 @@
 <?php
+namespace Hanbit;
 //클래스의 제약 조건부여
 //1. $pdo 인스턴스를 전달하지 않으면 DatabaseTable 클래스 인스턴스를 생성할 수 없다.
 //2. 첫번째 인수는 유효한 PDO 인스턴스 3. 객체가 생성된후 $pdo 변경불가
@@ -15,7 +16,7 @@ class DatabaseTable{
 	//생성자 안에서 클래스 변수에 값을 할당해야 한다.
 	//생성자 인수 정의에 따라 DatabaseTable 인스턴스를 만들때 다음과 같이 3가지 인수를 제공해야한다
 	//$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-	public function __construct(PDO $pdo, string $table, string $primaryKey)
+	public function __construct(\PDO $pdo, string $table, string $primaryKey)
 	{
 		$this->pdo = $pdo;
 		$this->table = $table;
@@ -113,7 +114,7 @@ class DatabaseTable{
 	//날짜 형식 처리
 	public function processDates($fields) {
 		foreach ($fields as $key => $value) {
-			if ($value instanceof DateTime) {
+			if ($value instanceof \DateTime) {
 				$fields[$key] = $value->format('Y-m-d H:i:s');
 			}
 		}
@@ -132,7 +133,7 @@ class DatabaseTable{
 			}
 			$this->insert($record);
 		}
-		catch (PDOException $e){
+		catch (\PDOException $e){
 			$this->update($record);
 		}
 	}

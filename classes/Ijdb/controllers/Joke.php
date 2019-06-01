@@ -1,7 +1,12 @@
 <?php
 //컨트롤러 코드를 모두 JokeController로 통합, 모든 페이지를 한 파일에서 표시할 수 있다.
+namespace Ijdb\Controllers;
+//네임스페이스를 정확히 지정하지 않으면 PHP는 현재 네임스페이스에서 클래스를 찾는다. 컨트롤러는 Ijdb 네임스페이스에 있으므로
+//DatabaseTable클래스를 불러오면 Ijdb\DatabaseTable을 찾는다. 클래스명에 앞에 네임스페이스를 정확히 써야 클래스를 불러오므르 DatabaseTable을 \Hanbit\DatabaseTable로 고쳐야한다.
+//다른방법은 네임스페이스를 선언한다음 use키워드 뒤에 정규화된 클래스명을 쓴다.
+use \Hanbit\DatabaseTable;
 
-class JokeController {
+class Joke {
     private $authorsTable;
     private $jokesTable;
 
@@ -51,20 +56,19 @@ class JokeController {
 
     	header('location: index.php?route=joke/list');
     }
-    public function edit(){
-        if (isset($_POST['joke'])) {
+    //폼 표시
+    public function saveEdit(){
             $joke = $_POST['joke'];
             $joke['authorId'] = 1;
-            $joke['jokedate'] = new DateTime();
-            // return print_r($joke);
+            $joke['jokedate'] = new \DateTime();
             $this->jokesTable->save($joke);
             header('location: index.php?route=joke/list');
-        } else {
-            //수정폼
-            if(isset($_GET['id'])){
-                //해당아이디에 열 가져오기
-                $joke = $this->jokesTable->findById($_GET['id']);
-            }
+    }
+    //폼 처리
+    public function edit(){
+        if(isset($_GET['id'])){
+            $joke = $this->jokesTable->findById($_GET['id']);
+        }
             $title = '유머 글 수정';
 
             return ['template' => 'editjoke.html.php',
@@ -73,6 +77,5 @@ class JokeController {
                     'joke' => $joke ?? null
                 ]
             ];
-        }
     }
 }
