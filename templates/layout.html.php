@@ -2,18 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="jokes.css">
+    <link rel="stylesheet" href="/public/jokes.css">
     <title><?=$title?></title>
   </head>
   <body>
   <nav>
     <header>
-      <h1>인터넷 유머 세상</h1>
+      <h1>phpweb</h1>
     </header>
     <ul>
       <li><a href="index.php">Home</a></li>
-      <li><a href="index.php?route=joke/list">유머 글 목록</a></li>
-      <li><a href="index.php?route=joke/edit">유머 글 등록</a></li>
+      <li><a href="index.php?route=joke/list">글 목록</a></li>
+      <li><a href="index.php?route=joke/edit">글 등록</a></li>
+      <li><a href="index.php?route=author/register">사용자</a></li>
     </ul>
   </nav>
 

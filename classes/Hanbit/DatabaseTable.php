@@ -51,8 +51,18 @@ class DatabaseTable{
 		return $query->fetch();
 		// print_r($query->fetch());
 	}
+	//지정한 칼럼에서 지정한 값을 검색해 모두 반환
+	public function find($column, $value) {
+		$query = 'SELECT * FROM `' . $this->table . '` WHERE `' . $column . '` = :value';
+		// query() 함수에서 사용할 $parameters 배열 생성
+		$parameters = ['value' => $value];
 
+		// query() 함수에서 사용할 $parameters 배열 제공
+		$query = $this->query($query, $parameters);
 
+		return $query->fetchAll();
+		// print_r($query->fetch());
+	}
 	private function insert($fields) {
 		$keys = [];
 		// $fields = ['authorId' => 1, 'jokeText' => '도레미파', 'jokedate' => new DateTime()]
