@@ -22,22 +22,21 @@ class Joke {
         $jokes = [];
         foreach ($result as $joke) {
             //print_r($joke);
-
-            $author = $this->authorsTable->findById($joke['authorId']); // author 테이블 id로 검색한 열 출력
+            $totalJokes = $this->jokesTable->total();
+            $author = $this->authentication->getUser();
             //print_r($author);
+
             $jokes[] = [
                 'id' => $joke['id'],
                 'joketext' => $joke['joketext'],
                 'jokedate' => $joke['jokedate'],
                 'name' => $author['name'],
                 'email' => $author['email'],
-                'authorId' => $author['id'],
+                'authorId' => $joke['authorId'],
             ];
         }
 
         $title = '글 목록';
-
-        $totalJokes = $this->jokesTable->total();
 
         return ['template' => 'jokes.html.php',
         'title' => $title,
