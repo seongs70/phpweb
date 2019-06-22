@@ -9,7 +9,15 @@
 namespace Hanbit;
 interface Routes
 {
-    public function getRoutes();
+
+    //Routes 인터페이스에 getAuthentication)메서드를 추가하면 인터페이스를 구현하는 모든 클래스가 해당 메서드를 구현해야 한다.
+    //만일 쇼핑몰 사이트에 ShopRoutes 클래스를 만들면 IjdbRoutes와 마찬가지로 두 메서드를 모두 구현하고 각각 배열과 객체를 반환해야 한다.
+    //IjdbRoutes클래스는 Routes인터페이스의 두 필수 메서드를 구현한다. 그러나 getAuthentication()이 반드시 Authentication객체를 반환한다고 보장할 수 없다.
+    //getAuthentication()이 Authentication객체를 반환하지 않으면 isLoggedIn()메서드를 호출할 때 오류가 발생한다.
+    //이러한 사고를 방지하기위해 타입힌트를 지정한다. 지정한 타입을 반환하지 않으면 오류 발생
+    public function getRoutes(): array; // 배열을 ㅂㄴ환하므로 array힌트
+    //해당 메서드가 아무것도 반환 또는 Authentication 객체가 아닌 다른 객체를 반환하면 오류 발생
+    public function getAuthentication(): \Hanbit\Authentication;
 }
 //이제 EntryPoint생성자에 인터페이스로 타입힌트를 지정한다.
 // public function __construct(string $route, string $method, \Hanbit\Routes $routes){}

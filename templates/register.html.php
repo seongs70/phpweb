@@ -10,6 +10,20 @@
 }
 </style>
 <?php
+if(!isset($_SESSION['visits'])){
+    $_SESSION['visits'] = 0;
+}
+$_SESSION['visits'] = $_SESSION['visits'] + 1;
+if($_SESSION['visits'] > 1 ) {
+    echo $_SESSION['visits'] . "번째 방문하셨습니다.";
+} else {
+    //첫 방문
+    echo '웹사이트에 오신 걸 환영합니다. 둘려보려면 여기를 클릭하세요.';
+}
+
+
+
+
 
 if(!empty($errors)):
     if(empty($author['email'])){
@@ -34,6 +48,8 @@ if(!empty($errors)):
     </div>
 <?php
 endif;
+
+
 ?>
 <form action ="" method="post">
     <label for="">이메일</label>

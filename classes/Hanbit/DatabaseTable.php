@@ -27,7 +27,10 @@ class DatabaseTable{
 	private function query($sql, $parameters = []) {
 		//데이터베이스 커넥션과 테이블명을 인수로 전달받지 않고 클래스 변수에서 가져온다
 		$query = $this->pdo->prepare($sql);
+		// print_r($query);
+		// print_r($parameters);
 		$query->execute($parameters);
+
 		return $query;
 	}
 
@@ -53,15 +56,15 @@ class DatabaseTable{
 	}
 	//지정한 칼럼에서 지정한 값을 검색해 모두 반환
 	public function find($column, $value) {
-		$query = 'SELECT * FROM `' . $this->table . '` WHERE `' . $column . '` = :value';
-		// query() 함수에서 사용할 $parameters 배열 생성
-		$parameters = ['value' => $value];
+		$query = 'SELECT * FROM ' . $this->table . ' WHERE ' . $column . ' = :value';
 
-		// query() 함수에서 사용할 $parameters 배열 제공
+		$parameters = [
+			'value' => $value
+		];
+
 		$query = $this->query($query, $parameters);
 
 		return $query->fetchAll();
-		// print_r($query->fetch());
 	}
 	private function insert($fields) {
 		$keys = [];

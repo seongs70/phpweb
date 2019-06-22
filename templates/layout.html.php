@@ -14,7 +14,12 @@
       <li><a href="index.php">Home</a></li>
       <li><a href="index.php?route=joke/list">글 목록</a></li>
       <li><a href="index.php?route=joke/edit">글 등록</a></li>
-      <li><a href="index.php?route=author/register">사용자</a></li>
+      <?php if ($loggedIn): ?>
+          <li><a href="index.php?route=logout">로그아웃</a></li>
+      <?php else: ?>
+          <li><a href="index.php?route=login">로그인</a></li>
+      <?php endif; ?>
+    
     </ul>
   </nav>
 

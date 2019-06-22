@@ -23,7 +23,7 @@ class EntryPoint
     private function checkUrl() {
         if($this->route !== strtolower($this->route)){
             http_response_code(301);
-            return print($this->route);
+
             header('location: index.php?route='.strtolower($this->route));
         }
     }
@@ -40,19 +40,26 @@ class EntryPoint
     //템플릿 기능을 담당
     public function run(){
         $routes = $this->routes->getRoutes();
-
-        $controller = $routes[$this->route][$this->method]['controller'];
-        $action = $routes[$this->route][$this->method]['action'];
-
-        $page = $controller->$action();
-
-        $title = $page['title'];
-
-        if(isset($page['variables'])){
-            $output = $this->loadTemplate($page['template'], $page['variables']);
-        } else {
-            $output = $this->loadTemplate($page['template']);
+        $authentication = $this->routes->getAuthentication();
+        if(isset($routes[$this->route]['login']) && isset($routes[$this->route]['login']) && !$authentication->isLoggedIn()){
+                header('location: index.php?route=login/error');
         }
-        include  __DIR__ . '/../../templates/layout.html.php';
+            $controller = $routes[$this->route][$this->method]['controller'];
+            $action = $routes[$this->route][$this->method]['action'];
+            $page = $controller->$action();
+
+            $title = $page['title'];
+
+            if(isset($page['variables'])){
+                $output = $this->loadTemplate($page['template'], $page['variables']);
+            } else {
+                $output = $this->loadTemplate($page['template']);
+            }
+            echo $this->loadTemplate('layout.html.php', [
+                'loggedIn' => $authentication->isLoggedIn(),
+                'output' => $output,
+                'title' => $title
+            ]);
+
     }
 }
