@@ -10,7 +10,7 @@ namespace Hanbit;
 interface Routes
 {
 
-    //Routes 인터페이스에 getAuthentication)메서드를 추가하면 인터페이스를 구현하는 모든 클래스가 해당 메서드를 구현해야 한다.
+    //Routes 인터페이스에 getAuthentication()메서드를 추가하면 인터페이스를 구현하는 모든 클래스가 해당 메서드를 구현해야 한다.
     //만일 쇼핑몰 사이트에 ShopRoutes 클래스를 만들면 IjdbRoutes와 마찬가지로 두 메서드를 모두 구현하고 각각 배열과 객체를 반환해야 한다.
     //IjdbRoutes클래스는 Routes인터페이스의 두 필수 메서드를 구현한다. 그러나 getAuthentication()이 반드시 Authentication객체를 반환한다고 보장할 수 없다.
     //getAuthentication()이 Authentication객체를 반환하지 않으면 isLoggedIn()메서드를 호출할 때 오류가 발생한다.

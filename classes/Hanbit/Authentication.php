@@ -20,6 +20,10 @@ class Authentication
     public function login($username, $password)
     {
         $user = $this->users->find($this->usernameColumn, strtolower($username));
+        ?><pre><?php
+        echo $this->passwordColumn.'<br>';
+        print_r($user[0]->{$this->passwordColumn});
+        ?></pre><?php
 
         //세션 데이터와 데이터베이스를 비교하는 코드
         //1. 세션에 저장된 메일 주소로 데이터베이스에서 사용자를 검색, 로그인 폼에 입력했던 메일 주소
@@ -28,14 +32,14 @@ class Authentication
         //// 필요한것 1. 사용자가 입력한 메일 주소와 비밀번호를 검사하고 로그인 하는 메서드, 로그인 폼 제출 시 호출
         //// 필요한것 2. 현재 사용자가 로그인 상태인지, 로그인 후 비밀번호가 변경됐는지 확인하는 메서드, 접근 권한이 설정된 모든페이지에서 호출
         // 이 클래스는 모든 웹사이트에서 공통적으로 사용하도록 Hanbit 프레임워크 네임스페이스안에 둔다
-        if(!empty($user) && password_verify($password, $user[0][$this->passwordColumn])){
+        if(!empty($user) && password_verify($password, $user[0]->{$this->passwordColumn})){
             //비밀번호로 보호된 내용 표시
             //이 함수는 세션 ID를 새로 바꿔주는 함수, 호출하면 해당 사용자에게 임의의 신규 세션 ID할당
             //로그인 하기 전 이미 세션 ID가 유출됐을 경우를 대비해 로그인 후 세션 ID를 교체 하는 것
             session_regenerate_id();
             $_SESSION['username'] = $username;
             //데이터베이스에 저장된 비밀번호를 읽을 때
-            $_SESSION['password'] = $user[0][$this->passwordColumn];
+            $_SESSION['password'] = $user[0]->{$this->passwordColumn};
             return true;
         } else {
             return false;
@@ -52,8 +56,8 @@ class Authentication
         }
 
         $user = $this->users->find($this->usernameColumn, strtolower($_SESSION['username']));
-
-        if(!empty($user) && $user[0][$this->passwordColumn] === $_SESSION['password']){
+        $passwordColumn = $this->passwordColumn;
+        if(!empty($user) && $user[0]->{$this->passwordColumn} === $_SESSION['password']){
             return true;
         } else {
             return false;

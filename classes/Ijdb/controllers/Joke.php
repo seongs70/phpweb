@@ -18,34 +18,22 @@ class Joke {
     }
     //글 목록페이지 메서드로 변환
     public function list(){
-        $result = $this->jokesTable->findAll();
-        $jokes = [];
-        foreach ($result as $joke) {
-            //print_r($joke);
-            $totalJokes = $this->jokesTable->total();
-            $author = $this->authentication->getUser();
-            //print_r($author);
+        $jokes = $this->jokesTable->findAll();
 
-            $jokes[] = [
-                'id' => $joke['id'],
-                'joketext' => $joke['joketext'],
-                'jokedate' => $joke['jokedate'],
-                'name' => $author['name'],
-                'email' => $author['email'],
-                'authorId' => $joke['authorId'],
-            ];
-        }
+		$title = '글 목록';
 
-        $title = '글 목록';
+		$totalJokes = $this->jokesTable->total();
 
-        return ['template' => 'jokes.html.php',
-        'title' => $title,
-        'variables' => [
-            'totalJokes' => $totalJokes,
-            'jokes' => $jokes,
-            'userId' => $author['id'] ?? null
-        ]
-    ];
+		$author = $this->authentication->getUser();
+        // print_r($author);
+		return ['template' => 'jokes.html.php',
+				'title' => $title,
+				'variables' => [
+						'totalJokes' => $totalJokes,
+						'jokes' => $jokes,
+						'userId' => $author->id ?? null
+					]
+				];
     }
     public function home() {
         $title = 'phpweb';
@@ -56,7 +44,7 @@ class Joke {
     public function delete(){
         $author = $this->authentication->getUser();
         $joke = $this->jokesTable->findById($_POST['id']);
-        if($joke['authorId'] != $author['id']){
+        if($joke->authorId != $author->id){
             return;
         }
         $this->jokesTable->delete($_POST['id']);
@@ -68,22 +56,29 @@ class Joke {
             //가령 폼파일을 정교하게 모방해 다른 웹사이트로 데이터 전송이 가능할 수 있다. <form action="http://192.168.10.10/joke/edit?id=1">
             //이폼은 로그인 사용자와 관계없이 누구나 값을 입력하고 제출할 수 있다.그결과 데이터가 바뀐다 폼데이터를 처리하기 전에 사용자 검사 기능을 추가해야한다
             //joke 테이블 authorId칼럼값이 로그인 사용자의 ID와 다르면 return명령어를 실행
-            if(isset($_GET['id'])){
-                $joke = $this->jokesTable->findById($_GET['id']);
-                if ($joke['authorId'] != $author['id']){
-                    return;
-                }
-            }
-
+            // if(isset($_GET['id'])){
+            //     $joke = $this->jokesTable->findById($_GET['id']);
+            //     if ($joke['authorId'] != $author['id']){
+            //         return;
+            //     }
+            // }
+            //
+            // $joke = $_POST['joke'];
+            // $joke['authorId'] = $author['id'];
+            // $joke['jokedate'] = new \DateTime();
+            // $this->jokesTable->save($joke);
             $joke = $_POST['joke'];
-            $joke['authorId'] = $author['id'];
-            $joke['jokedate'] = new \DateTime();
-            $this->jokesTable->save($joke);
+            $joke['jokedata'] = new \DateTime();
+
+            $author->addJoke($joke);
+
+
             header('location: index.php?route=joke/list');
     }
     //폼 처리
     public function edit(){
         $author = $this->authentication->getUser();
+
         if(isset($_GET['id'])){
             $joke = $this->jokesTable->findById($_GET['id']);
         }
@@ -93,7 +88,7 @@ class Joke {
                 'title' => $title,
                 'variables' => [
                     'joke' => $joke ?? null,
-                    'userId' => $author['id'] ?? null
+                    'userId' => $author->id ?? null,
                 ]
             ];
     }

@@ -8,7 +8,10 @@ class DatabaseTable{
 	private $pdo;
 	private $table;
 	private $primaryKey;
-
+	//클래스명
+	private $className;
+	// 해당 클래스의 인수
+	private $constructorArgs;
 	//클래스 생성자 정의에 인수가 있고 기본강ㅄ이 없으면, 인스턴스를 생성할 때 반드시
 	//인수를 전달해야 한다. 그렇지 않으면 오류가 발생한다.
 	//메서드를 호출하기 전에 변수가 설정되지 않거나 $pdo 변수에 문자열이 지정되거나 이런 오류를 없애기 위해 생성자 사용한다.
@@ -16,11 +19,16 @@ class DatabaseTable{
 	//생성자 안에서 클래스 변수에 값을 할당해야 한다.
 	//생성자 인수 정의에 따라 DatabaseTable 인스턴스를 만들때 다음과 같이 3가지 인수를 제공해야한다
 	//$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-	public function __construct(\PDO $pdo, string $table, string $primaryKey)
+	public function __construct(\PDO $pdo, string $table, string $primaryKey, string $className = '\stdClass', array $constructorArgs = [])
 	{
+		//stdClass는 PHP내장 클래스며 알맹이가 없는 빈 클래스다. 간단한 데이터를 저장하는 용도로 쓴다.
+
+		//클래스명 인수를 생략하면 기본적으로  stdClass가 지정된다. 테이블마다 일일이 엔티티클래스를 만들필요없이 추가로 메서드를 구현할 엔티티클래스만 만들면된다
 		$this->pdo = $pdo;
 		$this->table = $table;
 		$this->primaryKey = $primaryKey;
+		$this->className = $className;
+		$this->constructorArgs = $constructorArgs;
 
 	}
 	//쿼리 실행
@@ -40,7 +48,7 @@ class DatabaseTable{
 	{
 		$result = $this->query('SELECT * FROM `' . $this->table . '`');
 
-		return $result->fetchAll();
+		return $result->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
 	}
 	//PK로 열검색
 	public function findById($value) {
@@ -50,8 +58,8 @@ class DatabaseTable{
 
 		// query() 함수에서 사용할 $parameters 배열 제공
 		$query = $this->query($query, $parameters);
-
-		return $query->fetch();
+		//findById()메서드에서 fetchObject()메서드를 호출할때 클래스명과 인수를 코드에 직접 쓰지않고 클래스 변수로 대체한다.
+		return $query->fetchObject($this->className, $this->constructorArgs);
 		// print_r($query->fetch());
 	}
 	//지정한 칼럼에서 지정한 값을 검색해 모두 반환
@@ -64,7 +72,7 @@ class DatabaseTable{
 
 		$query = $this->query($query, $parameters);
 
-		return $query->fetchAll();
+		return $query->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
 	}
 	private function insert($fields) {
 		$keys = [];

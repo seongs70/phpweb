@@ -33,18 +33,21 @@ class EntryPoint
         extract($variables);
         ob_start();
         include __DIR__ . '/../../templates/'.$templateFileName;
-
         return ob_get_clean();
     }
 
     //템플릿 기능을 담당
     public function run(){
         $routes = $this->routes->getRoutes();
+        //print_r($routes);
+
         $authentication = $this->routes->getAuthentication();
+
         if(isset($routes[$this->route]['login']) && isset($routes[$this->route]['login']) && !$authentication->isLoggedIn()){
                 header('location: index.php?route=login/error');
         }
             $controller = $routes[$this->route][$this->method]['controller'];
+
             $action = $routes[$this->route][$this->method]['action'];
             $page = $controller->$action();
 
@@ -52,8 +55,10 @@ class EntryPoint
 
             if(isset($page['variables'])){
                 $output = $this->loadTemplate($page['template'], $page['variables']);
+
             } else {
                 $output = $this->loadTemplate($page['template']);
+
             }
             echo $this->loadTemplate('layout.html.php', [
                 'loggedIn' => $authentication->isLoggedIn(),

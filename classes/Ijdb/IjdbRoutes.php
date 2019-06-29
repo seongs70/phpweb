@@ -7,15 +7,18 @@ class IjdbRoutes implements \Hanbit\Routes
 {
     private $authorsTable;
     private $jokesTable;
+    private $categoriesTable;
     private $authentication;
 
     public function __construct()
     {
         //DB연동 클래스 파일이 아니므로 수동으로 인클루드
         include __DIR__ . '/../../includes/DatabaseConnection.php';
-        $this->jokesTable = new \Hanbit\DatabaseTable($pdo, 'joke', 'id');
-        $this->authorsTable = new \Hanbit\DatabaseTable($pdo, 'author', 'id');
+        $this->jokesTable = new \Hanbit\DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable]);
+        $this->authorsTable = new \Hanbit\DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
+        $this->categoriesTable = new \Hanbit\DatabaseTable($pdo, 'category', 'id');
         $this->authentication = new \Hanbit\Authentication($this->authorsTable, 'email', 'password');
+
     }
     //URL경로를 검사하는 if문을 그대로 가져온 callAction()
     //컨트롤러 액션 메서드를 호출하고 $page변수를 반환하는 역할을 맡는다.
@@ -29,7 +32,7 @@ class IjdbRoutes implements \Hanbit\Routes
         //역슬래시 접두어 없이 PDO쓰면 원래의 PDO대신 \Habbit\PDO를 불러온다.
         //PDO클래스가 속한 영역, 네임스페이스가 지정되지 않은 최상위 영역을 전역 네임스페이스라 한다.  전역 네임스페이스의 클래스를 참조할 땐 맨앞에 역슬래시를 붙여야한다.
         $jokeController = new \Ijdb\Controllers\Joke($this->jokesTable, $this->authorsTable, $this->authentication);
-
+        $categoryController = new \Ijdb\Controllers\Category($this->categoriesTable);
         $authorController = new \Ijdb\Controllers\Register($this->authorsTable);
         $loginController = new \Ijdb\Controllers\Login($this->authentication);
         $routes = [
@@ -111,6 +114,32 @@ class IjdbRoutes implements \Hanbit\Routes
                     'action' => 'logout'
                 ]
             ],
+            'category/edit' => [
+                'POST' => [
+                    'controller' => $categoryController,
+                    'action' => 'saveEdit'
+                ],
+                'GET' => [
+                    'controller' => $categoryController,
+                    'action' => 'edit'
+                ],
+                'login' => true
+            ],
+            'category/list' =>[
+                'GET' => [
+                    'controller' => $categoryController,
+                    'action' => 'list'
+                ],
+                'login' => true
+            ],
+            'category/delete' =>[
+                'POST' => [
+                    'controller' => $categoryController,
+                    'action' => 'delete'
+                ],
+                'login' => true
+            ],
+
         ];
 
         return $routes;

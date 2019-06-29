@@ -10,11 +10,12 @@
 //컨트롤러 클래스를 추가하는 방법도 쉽다. classes 디렉터리에 클래스 파일을 저장하고 callAction()에서 액션 메서드를 호출하면 끝이다.
 
 try{
-
     include  __DIR__ . '/../includes/autoload.php';
 
+    // print_r(autoloader('Hanbit\EntryPoint'));
     $route = $_GET['route'] ?? 'joke/home';
 
+    //$_SERVER['REQUEST_METHOD'] : GET인지 POST인지 알려주는것 ;
     $entryPoint = new \Hanbit\EntryPoint($route, $_SERVER['REQUEST_METHOD'], new \Ijdb\IjdbRoutes());
     $entryPoint->run();
 } catch (PDOException $e){
