@@ -9,16 +9,24 @@ use \Hanbit\Authentication;
 class Joke {
     private $authorsTable;
     private $jokesTable;
+    private $categoriesTable;
+    private $authentication;
 
-    public function __construct(DatabaseTable $jokesTable, DatabaseTable $authorsTable, Authentication $authentication)
+    public function __construct(DatabaseTable $jokesTable, DatabaseTable $authorsTable,DatabaseTable $categoriesTable, Authentication $authentication)
     {
         $this->jokesTable = $jokesTable;
         $this->authorsTable = $authorsTable;
+        $this->categoriesTable = $categoriesTable;
         $this->authentication = $authentication;
     }
     //글 목록페이지 메서드로 변환
     public function list(){
-        $jokes = $this->jokesTable->findAll();
+        if(isset($_GET['category'])){
+            $category = $this->categoriesTable->findById($_GET['category']);
+            $jokes = $category->getJokes();
+        } else {
+            $jokes = $this->jokesTable->findAll();
+        }
 
 		$title = '글 목록';
 
@@ -29,12 +37,14 @@ class Joke {
 		return ['template' => 'jokes.html.php',
 				'title' => $title,
 				'variables' => [
-						'totalJokes' => $totalJokes,
-						'jokes' => $jokes,
-						'userId' => $author->id ?? null
+					'totalJokes' => $totalJokes,
+					'jokes' => $jokes,
+					'user' => $author,
+                    'categories' => $this->categoriesTable->findAll()
 					]
 				];
     }
+
     public function home() {
         $title = 'phpweb';
 
@@ -44,41 +54,39 @@ class Joke {
     public function delete(){
         $author = $this->authentication->getUser();
         $joke = $this->jokesTable->findById($_POST['id']);
-        if($joke->authorId != $author->id){
+        if($joke->authorId != $author->id && !$author->hasPermission(\Ijdb\Entity\Author::DELETE_JOKES)){
             return;
         }
         $this->jokesTable->delete($_POST['id']);
+
     	header('location: index.php?route=joke/list');
+    }
+    public function addJoke($joke){
+        $joke['authorId'] = $this->id;
+        return $this->jokesTable->save($joke);
     }
     //폼 표시
     public function saveEdit(){
-            $author = $this->authentication->getUser();
-            //가령 폼파일을 정교하게 모방해 다른 웹사이트로 데이터 전송이 가능할 수 있다. <form action="http://192.168.10.10/joke/edit?id=1">
-            //이폼은 로그인 사용자와 관계없이 누구나 값을 입력하고 제출할 수 있다.그결과 데이터가 바뀐다 폼데이터를 처리하기 전에 사용자 검사 기능을 추가해야한다
-            //joke 테이블 authorId칼럼값이 로그인 사용자의 ID와 다르면 return명령어를 실행
-            // if(isset($_GET['id'])){
-            //     $joke = $this->jokesTable->findById($_GET['id']);
-            //     if ($joke['authorId'] != $author['id']){
-            //         return;
-            //     }
-            // }
-            //
-            // $joke = $_POST['joke'];
-            // $joke['authorId'] = $author['id'];
-            // $joke['jokedate'] = new \DateTime();
-            // $this->jokesTable->save($joke);
-            $joke = $_POST['joke'];
-            $joke['jokedata'] = new \DateTime();
 
-            $author->addJoke($joke);
-
-
-            header('location: index.php?route=joke/list');
-    }
-    //폼 처리
-    public function edit(){
         $author = $this->authentication->getUser();
 
+        $joke = $_POST['joke'];
+        $joke['jokedate'] = new \DateTime();
+        $jokeEntity = $author->addJoke($joke);
+
+        $jokeEntity->clearCategories();
+
+		foreach ($_POST['category'] as $categoryId) {
+			$jokeEntity->addCategory($categoryId);
+		}
+        header('location: index.php?route=joke/list');
+    }
+
+    //폼 처리
+    public function edit(){
+
+        $author = $this->authentication->getUser();
+        $categories = $this->categoriesTable->findAll();
         if(isset($_GET['id'])){
             $joke = $this->jokesTable->findById($_GET['id']);
         }
@@ -88,7 +96,8 @@ class Joke {
                 'title' => $title,
                 'variables' => [
                     'joke' => $joke ?? null,
-                    'userId' => $author->id ?? null,
+                    'user' => $author,
+                    'categories' => $categories,
                 ]
             ];
     }

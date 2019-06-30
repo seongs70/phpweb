@@ -9,10 +9,12 @@ class Joke {
     public $joketext;
     private $authorsTable;
     private $author;
+    private $jokeCategoriesTable;
 
-    public function __construct(\Hanbit\DatabaseTable $authorsTable)
+    public function __construct(\Hanbit\DatabaseTable $authorsTable, \Hanbit\DatabaseTable $jokeCategoriesTable)
     {
         $this->authorsTable = $authorsTable;
+        $this->jokeCategoriesTable = $jokeCategoriesTable;
     }
     //현재 유머 글의 작성자를 반환한다.
     public function getAuthor()
@@ -24,4 +26,23 @@ class Joke {
         return $this->author;
     }
 
+    public function addCategory($categoryId){
+        $jokeCat = ['jokeId' => $this->id, 'categoryId' => $categoryId];
+
+        $this->jokeCategoriesTable->save($jokeCat);
+    }
+    //특정 글이 소속된 모든 카테고리를 찾은 다음 반복문을 실행해 $categoryId와 하나씩 비교한다.
+    public function hasCategory($categoryId){
+        $jokeCategories = $this->jokeCategoriesTable->find('jokeId', $this->id);
+
+        foreach($jokeCategories as $jokeCategory){
+            if($jokeCategory->categoryId == $categoryId){
+                return true;
+            }
+        }
+    }
+    //특정 유머 글의 카테고리 정보를 모두 제거한다.
+    public function clearCategories() {
+        $this->jokeCategoriesTable->deleteWhere('jokeId', $this->id);
+    }
 }

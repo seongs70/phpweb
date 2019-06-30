@@ -80,14 +80,16 @@ class DatabaseTable{
 		foreach ($fields as $key => $value) {
 			$keys[] = '`' . $key . '`';
 		}
-		$keys = implode(', ', $keys); // (`authorId`, `jokeText`, `jokedate`)
-		$query = 'INSERT INTO `' . $this->table .'` ('.$keys.') '; //INSERT INTO `joke` (`authorId`, `jokeText`, `jokedate`)
+		$keys = implode(', ', $keys);
+		$query = 'INSERT INTO `' . $this->table .'` ('.$keys.') ';
 		$query .= 'VALUES (';
-		$fieldKeys = array_keys($fields); //Array ( [0] => authorId [1] => jokeText [2] => jokedate )
+		$fieldKeys = array_keys($fields);
 
-		$query .= ':' . implode(', :', $fieldKeys) . ')'; //INSERT INTO `joke` (`authorId`, `jokeText`, `jokedate`) VALUES (:authorId, :jokeText, :jokedate)
-		$fields = $this->processDates($fields); //Array ( [authorId] => 1 [jokeText] => 도레 [jokedate] => 2019-05-29 09:01:50 )
-		$this->query($query, $fields);//query($pdo, INSERT INTO `joke` (`authorId`, `jokeText`, `jokedate`) VALUES (:authorId, :jokeText, :jokedate), Array ( [authorId] => 1 [jokeText] => 도레 [jokedate] => 2019-05-29 09:03:28 ))
+		$query .= ':' . implode(', :', $fieldKeys) . ')';
+		$fields = $this->processDates($fields);
+		$this->query($query, $fields);
+		//PDO라이브러리는 신규 ID를 조회하는 메서드를 제공한다. lastInsertId()메서드를 호출하면 마지막으로 추가한 레코드의 ID를 반환한다.
+		return $this->pdo->lastInsertId();
 	}
 
 
@@ -131,6 +133,17 @@ class DatabaseTable{
 		$this->query('DELETE FROM `' . $this->table .'` WHERE `' . $this->primaryKey . '` = :id', $parameters);
 	}
 
+	//PK가 쌍인것 삭제
+	public function deleteWhere($column, $value){
+		$query = 'DELETE FROM ' . $this->table . ' WHERE ' . $column . ' = :value';
+
+		$parameters = [
+			'value' => $value
+		];
+
+		$query = $this->query($query, $parameters);
+	}
+
 
 	//날짜 형식 처리
 	public function processDates($fields) {
@@ -146,17 +159,28 @@ class DatabaseTable{
 	//GET데이터에 따라 등록을 할지 수정을 할지 구분하는 범용함수
 	//$record[$primaryKey] == ''조건문은 ISERT쿼리를 실행할 때 id칼럼에 빈문자열이 들어가지 않도록 예방한다.
 	//if else 대신 try와 catch를 쓰는 이유는 등록 쿼리를 실행 했을때 실패하면 수정 쿼리를 실행 하기 위해서 이다. 지정한 id글이 있으면 중복키 오류가 발생하고 update() 함수가 대신 실행된다
-	public function save($record)
-	{
-		try{
-			if($record[$this->primaryKey] == ''){
+	public function save($record) {
+		$entity = new $this->className(...$this->constructorArgs);
+
+		try {
+			if ($record[$this->primaryKey] == '') {
 				$record[$this->primaryKey] = null;
 			}
-			$this->insert($record);
+			$insertId = $this->insert($record);
+
+			$entity->{$this->primaryKey} = $insertId;
 		}
-		catch (\PDOException $e){
+		catch (\PDOException $e) {
 			$this->update($record);
 		}
+
+		foreach ($record as $key => $value) {
+			if (!empty($value)) {
+				$entity->$key = $value;
+			}
+		}
+
+		return $entity;
 	}
 
 }

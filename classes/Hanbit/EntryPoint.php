@@ -42,10 +42,12 @@ class EntryPoint
         //print_r($routes);
 
         $authentication = $this->routes->getAuthentication();
-
-        if(isset($routes[$this->route]['login']) && isset($routes[$this->route]['login']) && !$authentication->isLoggedIn()){
-                header('location: index.php?route=login/error');
+        if(isset($routes[$this->route]['login']) && !$authentication->isLoggedIn()){
+            header('location: index.php?route=login/error');
         }
+        else if(isset($routes[$this->route]['permissions']) && !$this->routes->checkPermission($routes[$this->route]['permission'])){
+                header('location: index.php?route=login/error');
+        } else {
             $controller = $routes[$this->route][$this->method]['controller'];
 
             $action = $routes[$this->route][$this->method]['action'];
@@ -65,6 +67,6 @@ class EntryPoint
                 'output' => $output,
                 'title' => $title
             ]);
-
+        }
     }
 }

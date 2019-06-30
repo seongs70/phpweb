@@ -18,6 +18,7 @@ interface Routes
     public function getRoutes(): array; // 배열을 ㅂㄴ환하므로 array힌트
     //해당 메서드가 아무것도 반환 또는 Authentication 객체가 아닌 다른 객체를 반환하면 오류 발생
     public function getAuthentication(): \Hanbit\Authentication;
+    public function checkPermission($permission): bool;
 }
 //이제 EntryPoint생성자에 인터페이스로 타입힌트를 지정한다.
 // public function __construct(string $route, string $method, \Hanbit\Routes $routes){}
